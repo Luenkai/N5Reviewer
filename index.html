@@ -426,6 +426,74 @@
     text-align:center; font-family:'JetBrains Mono', monospace;
     font-size:11px; opacity:.45; margin-top:50px;
   }
+
+  /* =====================================================
+     DESKTOP LAYOUT (≥1100px) — sidebar nav + wider grids
+  ===================================================== */
+  @media (min-width:1100px){
+    body{
+      display:grid;
+      grid-template-columns:230px 1fr;
+      grid-template-areas:
+        "hero hero"
+        "tabs wrap";
+    }
+    .hero{ grid-area:hero; padding-top:44px; }
+    .stamp{ right:calc(50% - 460px); }
+
+    .tabs{
+      grid-area:tabs;
+      flex-direction:column;
+      align-items:stretch;
+      gap:4px;
+      position:sticky;
+      top:0;
+      align-self:start;
+      height:100vh;
+      overflow-y:auto;
+      background:transparent;
+      border-bottom:none;
+      border-right:1px solid var(--line);
+      padding:32px 16px 32px 0;
+      margin:0;
+    }
+    .tab-btn{ text-align:left; padding:10px 14px; }
+
+    .wrap{
+      grid-area:wrap;
+      max-width:1040px;
+      margin:0;
+      padding:32px 48px 100px 36px;
+    }
+
+    /* give reference grids more breathing room */
+    .kgrid{ grid-template-columns:repeat(8, 1fr); }
+    .kanji-grid{ grid-template-columns:repeat(auto-fill, minmax(165px,1fr)); }
+
+    /* two-column layouts once there's room */
+    #grammar-list{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(340px,1fr));
+      gap:14px;
+      align-items:start;
+    }
+    .gcard{ margin-bottom:0; }
+
+    #vocab-list{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(300px,1fr));
+      gap:8px 32px;
+      align-items:start;
+    }
+    .vocab-category h3.sub-title{ margin-top:6px; }
+
+    .choices{ grid-template-columns:repeat(4, 1fr); }
+
+    .flashcard{ max-width:400px; height:210px; }
+    .flashcard-face .big{ font-size:50px; }
+
+    footer{ grid-column:1 / -1; }
+  }
 </style>
 </head>
 <body>
@@ -992,11 +1060,13 @@ renderGrammar();
 function renderVocab(){
   const el = document.getElementById('vocab-list');
   el.innerHTML = Object.entries(vocab).map(([cat, words]) => `
-    <h3 class="sub-title">${cat}</h3>
-    <table class="vocab-table">
-      <tr><th>Japanese</th><th>Romaji</th><th>Meaning</th></tr>
-      ${words.map(([jp, rom, en]) => `<tr class="clickable"><td>${jp}</td><td>${rom}</td><td>${en}</td></tr>`).join('')}
-    </table>
+    <div class="vocab-category">
+      <h3 class="sub-title">${cat}</h3>
+      <table class="vocab-table">
+        <tr><th>Japanese</th><th>Romaji</th><th>Meaning</th></tr>
+        ${words.map(([jp, rom, en]) => `<tr class="clickable"><td>${jp}</td><td>${rom}</td><td>${en}</td></tr>`).join('')}
+      </table>
+    </div>
   `).join('');
   const allWords = Object.values(vocab).flat();
   const rows = el.querySelectorAll('tr.clickable');
