@@ -2,8 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>N5 手引き — JLPT N5 Reviewer</title>
+<meta name="description" content="Review hiragana, katakana, kanji, vocabulary and grammar for the JLPT N5, with flashcards and quizzes.">
+
+<!-- PWA -->
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#28365A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="N5 手引き">
+<link rel="icon" href="./icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700;800&family=Zen+Maru+Gothic:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -422,6 +434,88 @@
   .mistake-box .mb-label{font-family:'JetBrains Mono', monospace; font-size:9.5px; text-transform:uppercase; opacity:.6; margin-bottom:4px;}
   .mistake-box .mb-value{font-size:15px; font-weight:700;}
 
+  /* ---------- Stroke order ---------- */
+  .stroke-section{margin-top:14px;}
+  .stroke-toggle-btn{
+    width:100%; font-family:'JetBrains Mono', monospace; font-size:11.5px; letter-spacing:.03em;
+    padding:10px; border-radius:8px; border:1px dashed var(--indigo); background:rgba(40,54,90,0.05);
+    color:var(--indigo); cursor:pointer;
+  }
+  .stroke-toggle-btn:hover{background:rgba(40,54,90,0.1);}
+  .stroke-order-box{
+    margin-top:12px; padding:14px; border-radius:10px; background:rgba(255,255,255,0.6); border:1px solid var(--line);
+  }
+  .stroke-loading, .stroke-error{
+    text-align:center; font-size:12.5px; opacity:.65; padding:18px 6px;
+  }
+  .stroke-canvas-wrap{
+    width:180px; height:180px; margin:0 auto; position:relative;
+    background:
+      linear-gradient(rgba(192,67,43,0.28) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(192,67,43,0.28) 1px, transparent 1px);
+    background-size:100% 100%, 100% 100%;
+    background-position:center;
+    border:1px solid rgba(192,67,43,0.3);
+    border-radius:6px;
+  }
+  .stroke-canvas-wrap::before{
+    content:''; position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(192,67,43,0.16) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(192,67,43,0.16) 1px, transparent 1px);
+    background-size:25% 25%;
+  }
+  .stroke-canvas-wrap svg{position:relative; z-index:1;}
+  .stroke-controls{
+    display:flex; align-items:center; justify-content:center; gap:6px; margin-top:12px; flex-wrap:wrap;
+  }
+  .stroke-btn{
+    font-family:'JetBrains Mono', monospace; font-size:11px;
+    padding:7px 11px; border-radius:6px; border:1px solid var(--line);
+    background:#fff; color:var(--sumi); cursor:pointer;
+  }
+  .stroke-btn:hover{border-color:var(--indigo);}
+  .stroke-count{font-family:'JetBrains Mono', monospace; font-size:11px; opacity:.6; min-width:74px; text-align:center;}
+
+  /* ---------- Write / draw practice ---------- */
+  .write-stage{text-align:center;}
+  .write-canvas-wrap{
+    width:220px; height:220px; margin:0 auto; position:relative; touch-action:none;
+    background:
+      linear-gradient(rgba(34,32,28,0.18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34,32,28,0.18) 1px, transparent 1px);
+    background-size:50% 50%;
+    border:1.5px dashed var(--line); border-radius:10px; background-color:rgba(255,255,255,0.5);
+  }
+  .write-canvas-wrap canvas{position:relative; z-index:1; touch-action:none; cursor:crosshair;}
+  .write-controls{display:flex; justify-content:center; gap:8px; margin-top:12px; flex-wrap:wrap;}
+  .write-reveal{margin-top:16px;}
+  .write-reveal .stroke-order-box{margin-top:10px;}
+  .grade-row{display:flex; justify-content:center; gap:10px; margin-top:16px;}
+  .grade-row button{
+    font-family:'JetBrains Mono', monospace; font-size:12.5px; padding:11px 18px;
+    border-radius:8px; border:none; cursor:pointer; color:#fff;
+  }
+  .grade-row .btn-got-it{background:var(--moss);}
+  .grade-row .btn-missed{background:var(--vermillion);}
+
+  /* ---------- Type-answer quiz ---------- */
+  .type-answer-wrap{max-width:340px; margin:0 auto;}
+  .type-answer-input{
+    width:100%; font-family:'Zen Maru Gothic', sans-serif; font-size:16px;
+    padding:13px 14px; border-radius:8px; border:1.5px solid var(--line);
+    background:rgba(255,255,255,0.8); box-sizing:border-box;
+  }
+  .type-answer-input:focus{outline:none; border-color:var(--indigo);}
+  .type-answer-input.correct{border-color:var(--moss); background:rgba(110,127,92,0.12);}
+  .type-answer-input.wrong{border-color:var(--vermillion); background:rgba(192,67,43,0.10);}
+  .type-answer-submit{
+    margin-top:10px; font-family:'JetBrains Mono', monospace; font-size:12.5px;
+    padding:11px 20px; border-radius:8px; border:none; background:var(--indigo); color:var(--washi); cursor:pointer;
+  }
+  .type-answer-submit:disabled{opacity:.4;}
+  .type-answer-hint{font-size:11.5px; opacity:.55; margin-top:8px;}
+
   footer{
     text-align:center; font-family:'JetBrains Mono', monospace;
     font-size:11px; opacity:.45; margin-top:50px;
@@ -626,6 +720,14 @@
               <button class="mode-btn" data-time="0">None</button>
             </div>
           </div>
+          <div class="setting-group">
+            <span class="setting-label">Answer mode</span>
+            <div class="mode-switch small" id="answermode-switch">
+              <button class="mode-btn active" data-answermode="choice">Multiple choice</button>
+              <button class="mode-btn" data-answermode="type">Type it</button>
+              <button class="mode-btn" data-answermode="write">Write it</button>
+            </div>
+          </div>
           <button class="start-quiz-btn" id="start-quiz">Start quiz →</button>
         </div>
 
@@ -639,7 +741,33 @@
             <div class="prompt" id="quiz-prompt">あ</div>
             <div class="quiz-prompt-text" id="quiz-prompt-text"></div>
           </div>
+
           <div class="choices" id="quiz-choices"></div>
+
+          <div class="type-answer-wrap" id="quiz-type-wrap" style="display:none;">
+            <input type="text" class="type-answer-input" id="quiz-type-input" placeholder="Type the reading or meaning…" autocomplete="off" autocapitalize="off" spellcheck="false">
+            <div><button class="type-answer-submit" id="quiz-type-submit" type="button">Check</button></div>
+            <div class="type-answer-hint">Romaji or English both work — close answers count.</div>
+          </div>
+
+          <div class="write-stage" id="quiz-write-wrap" style="display:none;">
+            <div class="quiz-prompt-text">Write it from memory, then check yourself against the stroke order.</div>
+            <div class="write-canvas-wrap">
+              <canvas id="quiz-write-canvas" width="220" height="220"></canvas>
+            </div>
+            <div class="write-controls">
+              <button class="stroke-btn" id="quiz-write-clear" type="button">Clear</button>
+              <button class="start-quiz-btn" id="quiz-write-reveal" type="button">Show answer →</button>
+            </div>
+            <div class="write-reveal" id="quiz-write-reveal-box" style="display:none;">
+              <div class="stroke-order-box" id="quiz-write-stroke-box"></div>
+              <div class="grade-row">
+                <button class="btn-got-it" id="quiz-write-got-it" type="button">✓ I got it right</button>
+                <button class="btn-missed" id="quiz-write-missed" type="button">✗ I missed it</button>
+              </div>
+            </div>
+          </div>
+
           <div class="next-row"><button id="quiz-next" disabled>Next question →</button></div>
         </div>
 
@@ -941,10 +1069,148 @@ function openModal(html, mistake){
 }
 function closeModal(){
   modalOverlay.classList.remove('open');
+  stopAnyStrokePlayback();
 }
 document.getElementById('modal-close').addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', (e) => { if(e.target === modalOverlay) closeModal(); });
 document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeModal(); });
+
+/* =====================================================
+   STROKE ORDER — fetches KanjiVG data and animates it
+   stroke-by-stroke (works for hiragana, katakana & kanji,
+   since KanjiVG covers all three).
+===================================================== */
+const strokeSvgCache = new Map();
+let stopAnyStrokePlayback = () => {}; // reassigned to the active box's stop fn while playing
+
+function kanjiVgCode(ch){
+  return ch.codePointAt(0).toString(16).padStart(5, '0');
+}
+
+async function fetchStrokeSvg(ch){
+  const code = kanjiVgCode(ch);
+  if(strokeSvgCache.has(code)) return strokeSvgCache.get(code);
+  const url = `https://cdn.jsdelivr.net/gh/KanjiVG/kanjivg@master/kanji/${code}.svg`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error('no stroke data for ' + ch);
+  const text = await res.text();
+  strokeSvgCache.set(code, text);
+  return text;
+}
+
+async function loadStrokeOrder(box, ch){
+  box.innerHTML = `<div class="stroke-loading">Loading stroke order…</div>`;
+  const chars = [...ch];
+  const primary = chars[0];
+  try{
+    const svgText = await fetchStrokeSvg(primary);
+    const note = chars.length > 1
+      ? `<div class="stroke-error" style="padding:8px 4px 0;">Showing strokes for ${primary} — ${ch} combines ${chars.join(' + ')}.</div>`
+      : '';
+    box.innerHTML = `
+      <div class="stroke-canvas-wrap">${svgText}</div>
+      ${note}
+      <div class="stroke-controls">
+        <button class="stroke-btn" data-act="prev" type="button">◂ Prev</button>
+        <span class="stroke-count" data-role="count">Stroke 0 / 0</span>
+        <button class="stroke-btn" data-act="next" type="button">Next ▸</button>
+        <button class="stroke-btn" data-act="play" type="button">▶ Play</button>
+        <button class="stroke-btn" data-act="reset" type="button">⟲ Reset</button>
+      </div>`;
+    return setupStrokeAnimation(box);
+  } catch(err){
+    box.innerHTML = `<div class="stroke-error">Couldn't load the stroke order right now — check your connection and try again.</div>`;
+    return null;
+  }
+}
+
+// wires up prev/next/play/reset controls for a loaded stroke-order box.
+// returns a small controller {reveal(n)} other features (like write-practice) can reuse.
+function setupStrokeAnimation(box){
+  const svg = box.querySelector('svg');
+  if(!svg) return null;
+  svg.removeAttribute('width');
+  svg.removeAttribute('height');
+  svg.setAttribute('width', '160');
+  svg.setAttribute('height', '160');
+  svg.style.display = 'block';
+  svg.style.margin = '0 auto';
+
+  const paths = Array.from(svg.querySelectorAll('path'));
+  const numbers = Array.from(svg.querySelectorAll('text'));
+  paths.forEach(p => {
+    const len = p.getTotalLength();
+    p.style.fill = 'none';
+    p.style.stroke = '#28365A';
+    p.style.strokeWidth = '3.2';
+    p.style.strokeLinecap = 'round';
+    p.style.strokeLinejoin = 'round';
+    p.dataset.len = len;
+    p.style.strokeDasharray = String(len);
+    p.style.strokeDashoffset = String(len);
+  });
+  numbers.forEach(n => { n.style.display = 'none'; n.style.fill = 'var(--vermillion, #C0432B)'; });
+
+  let current = 0;
+  let playTimer = null;
+  const countEl = box.querySelector('[data-role="count"]');
+  const playBtn = box.querySelector('[data-act="play"]');
+
+  function render(){
+    paths.forEach((p, i) => { p.style.strokeDashoffset = i < current ? '0' : p.dataset.len; });
+    numbers.forEach((n, i) => { n.style.display = i < current ? '' : 'none'; });
+    if(countEl) countEl.textContent = `Stroke ${current} / ${paths.length}`;
+  }
+  function stop(){
+    if(playTimer){ clearInterval(playTimer); playTimer = null; if(playBtn) playBtn.textContent = '▶ Play'; }
+  }
+  function reveal(n){
+    stop();
+    current = Math.max(0, Math.min(paths.length, n));
+    render();
+  }
+  render();
+
+  const nextBtn = box.querySelector('[data-act="next"]');
+  const prevBtn = box.querySelector('[data-act="prev"]');
+  const resetBtn = box.querySelector('[data-act="reset"]');
+  if(nextBtn) nextBtn.addEventListener('click', () => { stop(); if(current < paths.length){ current++; render(); } });
+  if(prevBtn) prevBtn.addEventListener('click', () => { stop(); if(current > 0){ current--; render(); } });
+  if(resetBtn) resetBtn.addEventListener('click', () => reveal(0));
+  if(playBtn) playBtn.addEventListener('click', () => {
+    if(playTimer){ stop(); return; }
+    current = 0; render();
+    playBtn.textContent = '⏸ Pause';
+    playTimer = setInterval(() => {
+      if(current >= paths.length){ stop(); return; }
+      current++; render();
+    }, 650);
+  });
+
+  stopAnyStrokePlayback = stop;
+  return { reveal, strokeCount: paths.length };
+}
+
+// event delegation: any ".stroke-toggle-btn" inside the modal (initial view or
+// mistake-review view) lazily loads + animates its stroke order box on first tap.
+modalContent.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.stroke-toggle-btn');
+  if(!btn) return;
+  const box = btn.nextElementSibling;
+  const showing = box.style.display !== 'none';
+  if(showing){
+    box.style.display = 'none';
+    btn.textContent = '✎ See stroke order, step by step';
+    stopAnyStrokePlayback();
+  } else {
+    box.style.display = '';
+    btn.textContent = '✎ Hide stroke order';
+    if(!box.dataset.loaded){
+      box.dataset.loaded = '1';
+      await loadStrokeOrder(box, btn.dataset.char);
+    }
+  }
+});
 
 // find a word (from vocab or kanji examples) containing a given kana, for kana popups
 function findExampleWord(ch){
@@ -957,6 +1223,15 @@ function findExampleWord(ch){
     if(exReading && exReading.includes(ch)) return {word:exWord, sub:exReading, meaning:exMeaning};
   }
   return null;
+}
+
+// shared markup for the "see stroke order" toggle used inside kana/kanji modals
+function strokeSectionHtml(ch){
+  return `
+    <div class="stroke-section">
+      <button class="stroke-toggle-btn" data-char="${ch}" type="button">✎ See stroke order, step by step</button>
+      <div class="stroke-order-box" style="display:none;"></div>
+    </div>`;
 }
 
 function kanaModalHtml(ch, rom, kanaType, groupLabel){
@@ -976,6 +1251,7 @@ function kanaModalHtml(ch, rom, kanaType, groupLabel){
     <div class="modal-row"><b>Written</b><span>${ch}</span></div>
     <div class="modal-row"><b>Pronounced</b><span>${rom}</span></div>
     ${exampleBlock}
+    ${strokeSectionHtml(ch)}
   `;
 }
 
@@ -992,6 +1268,7 @@ function kanjiModalHtml(glyph, meaning, on, kun, exWord, exReading, exMeaning){
       <div class="ex-reading">${exReading}</div>
       <div class="ex-meaning">${exMeaning}</div>
     </div>
+    ${strokeSectionHtml(glyph)}
   `;
 }
 
@@ -1182,6 +1459,7 @@ document.getElementById('flash-next').addEventListener('click', nextFlashcard);
 /* ---- QUIZ (fixed question count + time limit + grading) ---- */
 let quizQCount = 10;
 let quizTimeLimit = 60; // seconds, 0 = no limit
+let quizAnswerMode = 'choice'; // 'choice' | 'type' | 'write'
 let currentQ = null;
 let quizQueue = [];
 let quizIndex = 0;
@@ -1203,13 +1481,116 @@ document.getElementById('time-switch').addEventListener('click', e => {
   document.querySelectorAll('#time-switch .mode-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
 });
+document.getElementById('answermode-switch').addEventListener('click', e => {
+  const btn = e.target.closest('.mode-btn');
+  if(!btn || !btn.dataset.answermode) return;
+  quizAnswerMode = btn.dataset.answermode;
+  document.querySelectorAll('#answermode-switch .mode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+});
 
 function resetQuizToSettings(){
   stopQuizTimer();
+  stopAnyStrokePlayback();
   document.getElementById('quiz-settings').style.display = '';
   document.getElementById('quiz-active').style.display = 'none';
   document.getElementById('quiz-results').style.display = 'none';
 }
+
+/* ---- typed-answer checking: forgiving of "a / b", parentheticals, case ---- */
+function normalizeAnswerText(s){
+  return s.toLowerCase().replace(/\(.*?\)/g, '').replace(/[^a-z0-9\u3040-\u30ff\u30a0-\u30ff\u4e00-\u9faf\s]/g, '').trim();
+}
+function isTypedAnswerCorrect(userInput, correctAnswer){
+  const user = normalizeAnswerText(userInput);
+  if(!user) return false;
+  const alternatives = correctAnswer.split(/[\/,・]/).map(normalizeAnswerText).filter(Boolean);
+  if(!alternatives.length) alternatives.push(normalizeAnswerText(correctAnswer));
+  return alternatives.includes(user);
+}
+function resetTypeArea(){
+  const input = document.getElementById('quiz-type-input');
+  input.value = '';
+  input.disabled = false;
+  input.classList.remove('correct', 'wrong');
+  document.getElementById('quiz-type-submit').disabled = false;
+}
+function handleTypedAnswer(){
+  const input = document.getElementById('quiz-type-input');
+  if(input.disabled) return;
+  const val = input.value.trim();
+  if(!val) return;
+  const ok = isTypedAnswerCorrect(val, currentQ.back);
+  input.disabled = true;
+  document.getElementById('quiz-type-submit').disabled = true;
+  input.classList.add(ok ? 'correct' : 'wrong');
+  if(ok){ quizCorrect++; } else { showMistakeModal(val, currentQ); }
+  document.getElementById('quiz-next').disabled = false;
+}
+document.getElementById('quiz-type-submit').addEventListener('click', handleTypedAnswer);
+document.getElementById('quiz-type-input').addEventListener('keydown', e => { if(e.key === 'Enter') handleTypedAnswer(); });
+
+/* ---- "write it" practice: freehand canvas + self-check against stroke order ---- */
+const writeCanvas = document.getElementById('quiz-write-canvas');
+const writeCtx = writeCanvas.getContext('2d');
+writeCtx.lineWidth = 7;
+writeCtx.lineCap = 'round';
+writeCtx.lineJoin = 'round';
+writeCtx.strokeStyle = '#22201C';
+let writeDrawing = false;
+function writePos(e){
+  const rect = writeCanvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) * (writeCanvas.width / rect.width),
+    y: (e.clientY - rect.top) * (writeCanvas.height / rect.height)
+  };
+}
+function clearWriteCanvas(){ writeCtx.clearRect(0, 0, writeCanvas.width, writeCanvas.height); }
+writeCanvas.addEventListener('pointerdown', e => {
+  writeDrawing = true;
+  writeCanvas.setPointerCapture(e.pointerId);
+  const p = writePos(e);
+  writeCtx.beginPath();
+  writeCtx.moveTo(p.x, p.y);
+});
+writeCanvas.addEventListener('pointermove', e => {
+  if(!writeDrawing) return;
+  const p = writePos(e);
+  writeCtx.lineTo(p.x, p.y);
+  writeCtx.stroke();
+});
+['pointerup', 'pointerleave', 'pointercancel'].forEach(evt =>
+  writeCanvas.addEventListener(evt, () => { writeDrawing = false; })
+);
+document.getElementById('quiz-write-clear').addEventListener('click', clearWriteCanvas);
+
+function resetWriteArea(){
+  clearWriteCanvas();
+  document.getElementById('quiz-write-reveal-box').style.display = 'none';
+  document.getElementById('quiz-write-reveal').disabled = false;
+  document.getElementById('quiz-write-got-it').disabled = false;
+  document.getElementById('quiz-write-missed').disabled = false;
+  document.getElementById('quiz-write-stroke-box').innerHTML = '';
+}
+document.getElementById('quiz-write-reveal').addEventListener('click', async () => {
+  document.getElementById('quiz-write-reveal-box').style.display = '';
+  document.getElementById('quiz-write-reveal').disabled = true;
+  const box = document.getElementById('quiz-write-stroke-box');
+  const ch = currentQ.front;
+  if(ch && [...ch].length <= 2){
+    await loadStrokeOrder(box, ch);
+  } else {
+    box.innerHTML = `<div class="modal-glyph" style="font-size:38px;">${ch}</div><div class="stroke-error">${currentQ.back}</div>`;
+  }
+});
+function gradeWriteAnswer(correct){
+  document.getElementById('quiz-write-got-it').disabled = true;
+  document.getElementById('quiz-write-missed').disabled = true;
+  if(correct) quizCorrect++;
+  document.getElementById('quiz-next').disabled = false;
+}
+document.getElementById('quiz-write-got-it').addEventListener('click', () => gradeWriteAnswer(true));
+document.getElementById('quiz-write-missed').addEventListener('click', () => gradeWriteAnswer(false));
 
 function stopQuizTimer(){
   if(quizTimerId){ clearInterval(quizTimerId); quizTimerId = null; }
@@ -1263,6 +1644,7 @@ function updateTimerDisplay(){
 function loadQuizQuestion(){
   document.getElementById('quiz-next').disabled = true;
   document.getElementById('quiz-progress').textContent = `Q ${quizIndex+1} / ${quizQCount}`;
+  stopAnyStrokePlayback();
 
   // safety: if we somehow run past the queue, end the quiz instead of erroring
   if(!quizQueue[quizIndex]){
@@ -1271,22 +1653,40 @@ function loadQuizQuestion(){
   }
 
   currentQ = quizQueue[quizIndex];
-  const distractors = shuffle(pool.filter(x => x.back !== currentQ.back)).slice(0,3).map(x => x.back);
-  const options = shuffle([currentQ.back, ...distractors]);
 
   document.getElementById('quiz-tag').textContent = currentQ.tag;
   document.getElementById('quiz-prompt').textContent = currentQ.front;
-  document.getElementById('quiz-prompt-text').textContent = 'What does this mean / how is it read?';
 
   const choicesEl = document.getElementById('quiz-choices');
-  choicesEl.innerHTML = '';
-  options.forEach(opt => {
-    const b = document.createElement('button');
-    b.className = 'choice-btn';
-    b.textContent = opt;
-    b.addEventListener('click', () => handleAnswer(b, opt));
-    choicesEl.appendChild(b);
-  });
+  const typeWrap = document.getElementById('quiz-type-wrap');
+  const writeWrap = document.getElementById('quiz-write-wrap');
+  choicesEl.style.display = 'none';
+  typeWrap.style.display = 'none';
+  writeWrap.style.display = 'none';
+
+  if(quizAnswerMode === 'type'){
+    document.getElementById('quiz-prompt-text').textContent = 'Type the reading or meaning.';
+    typeWrap.style.display = '';
+    resetTypeArea();
+    document.getElementById('quiz-type-input').focus({ preventScroll: true });
+  } else if(quizAnswerMode === 'write'){
+    document.getElementById('quiz-prompt-text').textContent = '';
+    writeWrap.style.display = '';
+    resetWriteArea();
+  } else {
+    document.getElementById('quiz-prompt-text').textContent = 'What does this mean / how is it read?';
+    choicesEl.style.display = '';
+    const distractors = shuffle(pool.filter(x => x.back !== currentQ.back)).slice(0,3).map(x => x.back);
+    const options = shuffle([currentQ.back, ...distractors]);
+    choicesEl.innerHTML = '';
+    options.forEach(opt => {
+      const b = document.createElement('button');
+      b.className = 'choice-btn';
+      b.textContent = opt;
+      b.addEventListener('click', () => handleAnswer(b, opt));
+      choicesEl.appendChild(b);
+    });
+  }
 
   // make the last question obvious
   document.getElementById('quiz-next').textContent =
@@ -1363,6 +1763,15 @@ function endQuiz(timedOut){
 /* init */
 nextFlashcard();
 updateScoreLabel();
+
+/* =====================================================
+   PWA — service worker registration
+===================================================== */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
